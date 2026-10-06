@@ -1,0 +1,10 @@
+node_modules
+.git
+test
+*.log
+check_*.js
+inspect_*.js
+deploy_*.js
+manage_*.js
+verify_*.js
+get_build_logs.js
