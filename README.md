@@ -163,8 +163,8 @@ Once running:
 
 ## Deployed Environments
 
-- Production Application: https://equimesh.vercel.app
-- Documentation Portal: https://equimesh.vercel.app/docs
+- Production Application: https://equimesh-app.vercel.app (Secondary: https://equimesh-bnb.vercel.app)
+- Documentation Portal: https://equimesh-app.vercel.app/docs
 - Source Code Repository: https://github.com/0xNexuz/equimesh
 - Supported Networks:
   - BNB Smart Chain Mainnet (Chain ID: 56)
