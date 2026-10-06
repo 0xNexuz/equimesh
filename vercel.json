@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/docs", "destination": "/dashboard/docs.html" },
+    { "source": "/hero-charter.png", "destination": "/dashboard/hero-charter.png" },
+    { "source": "/favicon.svg", "destination": "/dashboard/favicon.svg" },
+    { "source": "/favicon.ico", "destination": "/dashboard/favicon.svg" },
+    { "source": "/", "destination": "/dashboard/index.html" },
+    { "source": "/(.*)", "destination": "/dashboard/$1" }
+  ]
+}

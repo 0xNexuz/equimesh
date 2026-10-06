@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="sealBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FAF5EB" />
+      <stop offset="70%" stop-color="#EFE6D5" />
+      <stop offset="100%" stop-color="#DCD0BD" />
+    </radialGradient>
+
+    <!-- Brass Gold Gradient -->
+    <linearGradient id="brassGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C158" />
+      <stop offset="50%" stop-color="#B8860B" />
+      <stop offset="100%" stop-color="#7A5600" />
+    </linearGradient>
+
+    <!-- Crimson Gradient -->
+    <linearGradient id="robotCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C92A2A" />
+      <stop offset="50%" stop-color="#9E2A2B" />
+      <stop offset="100%" stop-color="#5C1415" />
+    </linearGradient>
+
+    <!-- Shadow filter for seal depth -->
+    <filter id="sealShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#1A1815" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Outer Parchment Base -->
+  <circle cx="64" cy="64" r="60" fill="url(#sealBg)" stroke="#1A1815" stroke-width="2" filter="url(#sealShadow)" />
+
+  <!-- Outer Engraved Guilloche Ring -->
+  <circle cx="64" cy="64" r="54" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-dasharray="3 2" />
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#1A1815" stroke-width="1" />
+
+  <!-- 12 Engraved Calibration Nodes / Gear Teeth around perimeter -->
+  <g stroke="#1A1815" stroke-width="1.5">
+    <line x1="64" y1="6" x2="64" y2="11" />
+    <line x1="64" y1="117" x2="64" y2="122" />
+    <line x1="6" y1="64" x2="11" y2="64" />
+    <line x1="117" y1="64" x2="122" y2="64" />
+    <line x1="23" y1="23" x2="27" y2="27" />
+    <line x1="101" y1="101" x2="105" y2="105" />
+    <line x1="23" y1="105" x2="27" y2="101" />
+    <line x1="101" y1="27" x2="105" y2="23" />
+  </g>
+
+  <!-- Inner Crest Shield -->
+  <circle cx="64" cy="64" r="42" fill="#FAF5EB" stroke="#1A1815" stroke-width="1.5" />
+
+  <!-- Dual Sovereignty Crossing Elements -->
+  <!-- 1. The Human Quill / Drafting Stylus (Gold) -->
+  <path d="M40 88 L58 58 L62 62 L42 90 Z" fill="url(#brassGold)" stroke="#1A1815" stroke-width="0.8" />
+  <path d="M38 92 L42 86 L36 86 Z" fill="#1A1815" />
+
+  <!-- 2. The Robotic Cybernetic Stylus (Crimson) -->
+  <path d="M88 88 L70 58 L66 62 L86 90 Z" fill="url(#robotCrimson)" stroke="#1A1815" stroke-width="0.8" />
+  <circle cx="88" cy="88" r="3" fill="#C92A2A" stroke="#1A1815" stroke-width="0.8" />
+
+  <!-- Central BNB Diamond Rhombus Motif -->
+  <!-- Top Diamond -->
+  <polygon points="64,26 71,33 64,40 57,33" fill="#F0B90B" stroke="#1A1815" stroke-width="1" />
+  <!-- Center Core Rhombus with "E" Monogram -->
+  <polygon points="64,45 77,58 64,71 51,58" fill="#1A1815" />
+  <polygon points="64,48 74,58 64,68 54,58" fill="#FAF5EB" stroke="#B8860B" stroke-width="0.8" />
+
+  <!-- Cinzel "E" Logo in Center -->
+  <text x="64" y="64" font-family="'Cinzel', Georgia, serif" font-size="16" font-weight="900" fill="#1A1815" text-anchor="middle" dominant-baseline="central">E</text>
+
+  <!-- Left and Right Flanking BNB Micro-Diamonds -->
+  <polygon points="46,58 51,53 56,58 51,63" fill="#F0B90B" stroke="#1A1815" stroke-width="0.8" />
+  <polygon points="72,58 77,53 82,58 77,63" fill="#F0B90B" stroke="#1A1815" stroke-width="0.8" />
+
+  <!-- Bottom Archival Year Engraving -->
+  <text x="64" y="100" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#666055" letter-spacing="1.5" text-anchor="middle">BNB • BSC 56</text>
+</svg>
