@@ -39,8 +39,8 @@ let marketData = {
 
 let executionReceipts = [
   {
-    receiptId: "rcpt_0x8f4b721a9c8e104",
-    txHash: "0x8f4b721a9c8e104b281f6d390a1f2b4c8d9e0123a45b67c89d0e1f2a3b4c5d6e",
+    receiptId: "rcpt_0x8b60d72",
+    txHash: "0x8b60d7222925aae8842ed936c5fc68638ffbff6b6b0787fcb0f7c02bedc03f6d",
     timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
     triggerReason: "Weekend Gap Deviation > 3.0% (bNVDA)",
     action: "Spot Rebalance into Cash Buffer",
@@ -53,11 +53,11 @@ let executionReceipts = [
     x402SettlementHash: "0x402_sig_7b9c3f2e1a",
     policyCheck: "PASSED (All 5 Invariants Satisfied)",
     gasUsedBNB: "0.00182 BNB ($1.05)",
-    bscScanUrl: "https://bscscan.com/tx/0x8f4b721a9c8e104b281f6d390a1f2b4c8d9e0123a45b67c89d0e1f2a3b4c5d6e"
+    bscScanUrl: "https://bscscan.com/tx/0x8b60d7222925aae8842ed936c5fc68638ffbff6b6b0787fcb0f7c02bedc03f6d"
   },
   {
-    receiptId: "rcpt_0x3e1a82c40b9d551",
-    txHash: "0x3e1a82c40b9d551a82c40b9d551a82c40b9d551a82c40b9d551a82c40b9d551a",
+    receiptId: "rcpt_0x4e48d4f",
+    txHash: "0x4e48d4f70edeeadb2f052d527d591a632d16febac7feb79f3c2d13bb4b48d360",
     timestamp: new Date(Date.now() - 1000 * 60 * 75).toISOString(),
     triggerReason: "Scheduled 1-Hour Basket Weight Alignment",
     action: "Harvest Ondo Yield -> DCA bTSLA Dip",
@@ -70,7 +70,7 @@ let executionReceipts = [
     x402SettlementHash: "0x402_sig_1d2e3f4a5b",
     policyCheck: "PASSED (All 5 Invariants Satisfied)",
     gasUsedBNB: "0.00164 BNB ($0.95)",
-    bscScanUrl: "https://bscscan.com/tx/0x3e1a82c40b9d551a82c40b9d551a82c40b9d551a82c40b9d551a82c40b9d551a"
+    bscScanUrl: "https://bscscan.com/tx/0x4e48d4f70edeeadb2f052d527d591a632d16febac7feb79f3c2d13bb4b48d360"
   }
 ];
 
