@@ -7,6 +7,6 @@
     "start": "node server.js",
     "test": "node test/policy_invariants.test.js && node test/stress_test.js",
     "test:stress": "node test/stress_test.js",
-    "build": "node -e \"const fs = require('fs'); fs.mkdirSync('public/docs', {recursive:true}); fs.copyFileSync('index.html', 'public/index.html'); fs.copyFileSync('docs.html', 'public/docs.html'); fs.copyFileSync('docs.html', 'public/docs/index.html'); fs.copyFileSync('hero-charter.png', 'public/hero-charter.png'); fs.copyFileSync('favicon.svg', 'public/favicon.svg'); fs.copyFileSync('favicon.svg', 'public/favicon.ico');\""
+    "build": "node -e \"const fs = require('fs'); fs.mkdirSync('public/docs', {recursive:true}); fs.copyFileSync('index.html', 'public/index.html'); fs.copyFileSync('docs.html', 'public/docs.html'); fs.copyFileSync('docs.html', 'public/docs/index.html'); fs.copyFileSync('hero-charter.png', 'public/hero-charter.png'); fs.copyFileSync('favicon.svg', 'public/favicon.svg'); fs.copyFileSync('favicon.svg', 'public/favicon.ico'); fs.copyFileSync('index.html', 'dashboard/index.html'); fs.copyFileSync('docs.html', 'dashboard/docs.html');\""
   }
 }
