@@ -6,16 +6,6 @@ EquiMesh implements a Dual Sovereignty execution architecture: human capital all
 
 ---
 
-## Executive Summary & Hackathon Mandate
-
-- Hackathon: BNB Hack: Tokenized Stocks Edition
-- Hosts: BNB Chain and Binance Web3 Wallet
-- Total Prize Pool: $20,000 USD
-- Target Placements:
-  - 1st Place: Overall Track ($6,000 USD)
-  - Stack Special 1: Best Use of Agentic Wallet / Wallet Skills ($2,000 USD)
-  - Stack Special 2: Best Use of BNB Agent Studio ($2,000 USD)
-
 ### The Core Problem: The 24/7 Weekend Trading Gap
 
 At 16:00 EST on Friday, the New York Stock Exchange and NASDAQ close. All domestic US equity quotes freeze until 09:30 EST on Monday morning—a period of 65 consecutive hours where traditional financial markets are dark.
@@ -108,10 +98,6 @@ The test suite runs natively on standard Node.js libraries (node:assert, node:cr
 
 ---
 
-## Developer Experience (DevEx) Report (25% Rubric)
-
-A required hackathon deliverable evaluating integration velocity and sponsor tooling:
-
 ### Time-to-First-Call Telemetry
 
 | API / Tool Surface | Time to First Call | Latency (p50) | Developer Rating |
@@ -154,21 +140,8 @@ npm test
 node server.js
 ```
 
-Once running:
-- Charter Application: http://localhost:3000/
-- Developer Documentation & DevEx: http://localhost:3000/docs
-- Favicon Logo: http://localhost:3000/favicon.svg
 
 ---
-
-## Deployed Environments
-
-- Production Application: https://equimesh-app.vercel.app (Secondary: https://equimesh-bnb.vercel.app)
-- Documentation Portal: https://equimesh-app.vercel.app/docs
-- Source Code Repository: https://github.com/0xNexuz/equimesh
-- Supported Networks:
-  - BNB Smart Chain Mainnet (Chain ID: 56)
-  - BNB Smart Chain Testnet (Chain ID: 97)
 
 ---
 
