@@ -378,7 +378,7 @@ const marketProof = await response.json(); // Validated before policy check</cod
       <section id="contracts" class="doc-section">
         <h2>6. Smart Contracts & Invariant Proofs</h2>
         <p>
-          EquiMesh is backed by two core Solidity contracts in <code>/contracts</code>:
+          EquiMesh is backed by three core Solidity contracts in <code>/contracts</code>:
         </p>
         <table>
           <thead>
@@ -391,13 +391,18 @@ const marketProof = await response.json(); // Validated before policy check</cod
           <tbody>
             <tr>
               <td><code>EquiMeshVault.sol</code></td>
-              <td>Non-custodial ERC-4626 basket vault</td>
-              <td>User funds remain self-custodial; withdrawals are unconditionally unlocked at all times.</td>
+              <td>Non-custodial thematic basket vault</td>
+              <td>Proportional multi-asset NAV share accounting; post-trade balance delta reconciliation (<code>amountOut &gt;= minAmountOut</code>); non-custodial user withdrawals unlocked at all times.</td>
             </tr>
             <tr>
               <td><code>DeterministicPolicyGate.sol</code></td>
-              <td>On-chain execution gate for agent</td>
-              <td>Enforces 5 hard invariants: (1) Max trade size, (2) Max slippage, (3) Rate cooldown, (4) Allowlisted tokens, (5) Circuit breaker fail-closed.</td>
+              <td>On-chain policy gate for agent execution</td>
+              <td>Enforces 6 immutable invariants: (1) Emergency circuit breaker fail-closed, (2) Approved token allowlist, (3) $5,000 max single trade cap, (4) 100 bps max slippage cap, (5) 15-minute temporal cooldown mutex, (6) Role-based access control.</td>
+            </tr>
+            <tr>
+              <td><code>ReferencePriceOracle.sol</code></td>
+              <td>18-decimal USD reference pricing oracle</td>
+              <td>Provides deterministic, manipulatable-resistant asset valuation in 18-decimal USD base units for accurate on-chain NAV and trade bounds.</td>
             </tr>
           </tbody>
         </table>
@@ -466,44 +471,48 @@ const marketProof = await response.json(); // Validated before policy check</cod
       <section id="verification" class="doc-section">
         <h2>8. Independent Verification & Test Execution</h2>
         <p>
-          Following the <em>Build Harness</em> engineering standard, anyone can independently verify EquiMesh's core security invariants locally:
+          Following the <em>Build Harness</em> engineering standard, anyone can independently verify EquiMesh's core security invariants and real EVM smart contracts locally:
         </p>
-        <pre><code># 1. Run the native policy invariant test suite
-node test/policy_invariants.test.js
+        <pre><code># 1. Compile Solidity bytecode & prove all 7 EVM Smart Contract Invariants:
+node test/contracts_invariants.test.js
 
 # Expected Output:
-# ✓ Invariant 1: Max Slippage Cap (100 bps) strictly enforced
-# ✓ Invariant 2: Max Single Trade Ceiling ($5,000) enforced
-# ✓ Invariant 3: Rebalance Cooldown (15 min) rate limits execution
-# ✓ Invariant 4: Token Allowlist prevents unauthorized assets
-# ✓ Invariant 5: Emergency Human Circuit Breaker fails closed unconditionally
-# ✓ Invariant 6: x402 Micropayment settlement proof verification
-# 
-# ALL 6 SUITES PASSED (0 FAILURES)
+# Compiling Solidity 0.8.20 contracts...
+# ✓ Solidity bytecode compiled successfully.
+# [INVARIANT 1] Testing Proportional Share Accounting -> PASS: Drain attack blocked.
+# [INVARIANT 2] Testing Emergency Circuit Breaker -> PASS: Halts rebalances fail-closed.
+# [INVARIANT 3] Testing Token Allowlist Restriction -> PASS: Unallowlisted tokens rejected.
+# [INVARIANT 4] Testing Single Trade Size Ceiling ($5,000) -> PASS: Size cap enforced.
+# [INVARIANT 5] Testing Max Slippage Cap (100 bps) -> PASS: Slippage cap enforced.
+# [INVARIANT 6] Testing Genuine Token Rebalance & Balance Reconciliation -> PASS: Verified on EVM.
+# [INVARIANT 7] Testing Temporal Rate Limiting (15-Minute Cooldown) -> PASS: Cooldown enforced.
+# ALL 7 EVM SMART CONTRACT INVARIANTS PROVEN (0 FAILURES)
 
-# 2. Run the high-concurrency adversarial stress test suite
+# 2. Run the high-concurrency adversarial stress test suite:
 node test/stress_test.js
 
 # Expected Output:
-# [STRESS TEST 1/7] High-Concurrency Race Conditions (1,000 Simultaneous Triggers)...
-#   PASS: 1,000 simultaneous triggers evaluated -> Exactly 1 succeeded, 999 rejected by cooldown mutex.
-# [STRESS TEST 2/7] Exact Boundary Precision & Off-by-One Limits...
-#   PASS: Slippage (99 pass, 100 pass, 101 fail) and Trade Cap ($4,999.99 pass, $5,000.00 pass, $5,000.01 fail) strictly proven.
-# [STRESS TEST 3/7] Malicious & Poisoned Inputs (NaN, Infinity, Negative, Injections)...
-#   PASS: All 8 poisoned attack vectors rejected with zero runtime unhandled exceptions.
-# [STRESS TEST 4/7] Black Swan Simulation (10,000 High-Volatility Market Ticks)...
-#   PASS: Processed 10,000 ticks. Safe rebalances: 1293, Blocked high-volatility spikes: 8707.
-# [STRESS TEST 5/7] x402 Micropayment Anti-Replay & Depleted Budget Stress...
-#   PASS: Replay attacks blocked, invalid DIDs quarantined, and depleted budget halts gracefully.
-# [STRESS TEST 6/7] Emergency Kill Switch Fail-Closed Concurrency (2,000 Calls)...
-#   PASS: Emergency kill switch engaged -> 2,000 out of 2,000 attempts dropped immediately (100% fail-closed).
-# [STRESS TEST 7/7] Dual Network Context Isolation (BSC Mainnet 56 vs Testnet 97)...
-#   PASS: 500 rapid dual-network transactions maintained 100% context isolation between Mainnet and Testnet.
-# 
+# [STRESS TEST 1/7] High-Concurrency Race Conditions (1,000 Simultaneous Triggers) -> PASS (1 approved, 999 rejected)
+# [STRESS TEST 2/7] Exact Boundary Precision & Off-by-One Limits -> PASS
+# [STRESS TEST 3/7] Malicious & Poisoned Inputs (NaN, Infinity, Injections) -> PASS
+# [STRESS TEST 4/7] Black Swan Simulation (10,000 High-Volatility Market Ticks) -> PASS
+# [STRESS TEST 5/7] x402 Micropayment Anti-Replay & Depleted Budget Stress -> PASS
+# [STRESS TEST 6/7] Emergency Kill Switch Fail-Closed Concurrency (2,000 Calls) -> PASS
+# [STRESS TEST 7/7] Dual Network Context Isolation (BSC Mainnet 56 vs Testnet 97) -> PASS
 # STRESS TEST COMPLETE: 7/7 SUITES PASSED (0 FAILURES)
 
 # 3. Or run the combined suite directly:
 npm test</code></pre>
+
+        <div class="callout" style="margin-top: 20px;">
+          <strong>Truthful Execution & Evidence Boundaries:</strong>
+          EquiMesh strictly separates simulated sandbox demonstrations from genuine on-chain execution.
+          <ul>
+            <li><strong>Sandbox Demonstrations:</strong> Generate deterministic cryptographic simulation certificates (<code>0xsim_...</code>) grounded in local EVM verification without fabricating public explorer links.</li>
+            <li><strong>On-Chain Testnet Mode:</strong> When connected via Web3 Wallet on BNB Smart Chain Testnet (Chain ID 97), rebalances execute genuine on-chain state transitions with live verifiable links to <a href="https://testnet.bscscan.com" target="_blank" style="color: var(--robot-crimson);">testnet.bscscan.com</a>.</li>
+            <li><strong>Zero Mainnet Fund Risk:</strong> The protocol explicitly enforces sandbox and testnet boundaries; no real user funds or unverified mainnet contracts are used.</li>
+          </ul>
+        </div>
 
         <p>
           To run the live server and interactive console:

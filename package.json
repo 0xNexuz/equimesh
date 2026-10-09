@@ -5,8 +5,16 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/policy_invariants.test.js && node test/stress_test.js",
+    "test": "node test/contracts_invariants.test.js && node test/stress_test.js",
+    "test:contracts": "node test/contracts_invariants.test.js",
+    "test:policy": "node test/policy_invariants.test.js",
     "test:stress": "node test/stress_test.js",
     "build": "node -e \"const fs = require('fs'); fs.mkdirSync('public/docs', {recursive:true}); fs.copyFileSync('index.html', 'public/index.html'); fs.copyFileSync('docs.html', 'public/docs.html'); fs.copyFileSync('docs.html', 'public/docs/index.html'); fs.copyFileSync('hero-charter.png', 'public/hero-charter.png'); fs.copyFileSync('favicon.svg', 'public/favicon.svg'); fs.copyFileSync('favicon.svg', 'public/favicon.ico'); fs.copyFileSync('index.html', 'dashboard/index.html'); fs.copyFileSync('docs.html', 'dashboard/docs.html');\""
+  },
+  "dependencies": {
+    "ethers": "^6.17.0",
+    "ganache": "^7.9.2",
+    "hardhat": "^3.19.0",
+    "solc": "^0.8.37"
   }
 }

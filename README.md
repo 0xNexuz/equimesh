@@ -65,26 +65,32 @@ EquiMesh resolves the core trade-off between manual inertia and unsafe autonomou
 
 ## Technical Stack & Contracts
 
-### Smart Contracts (Solidity 0.8.20)
+### Smart Contracts (Solidity 0.8.20, EVM Version: Paris)
+
+- contracts/ReferencePriceOracle.sol
+  - Deterministic reference pricing oracle normalizing tokenized stock and RWA asset values to 18-decimal USD base ($1.00 = 1e18).
+  - Eliminates price manipulation vectors and provides tamper-proof asset valuation for NAV calculations.
 
 - contracts/DeterministicPolicyGate.sol
-  - On-chain execution gateway enforcing the 5 core safety invariants before any swap execution.
-  - Fail-closed circuit breaker mechanism with zero external administrative backdoors.
+  - On-chain execution gateway enforcing 6 immutable safety invariants before any swap execution.
+  - Enforces: (1) Fail-closed circuit breaker, (2) Token allowlist, (3) $5,000 USD single trade ceiling, (4) 100 bps max slippage cap, (5) 15-minute temporal cooldown mutex, (6) Role-based access control.
 
 - contracts/EquiMeshVault.sol
-  - ERC-4626 compliant tokenized stock and RWA basket vault.
-  - Self-custodial share accounting; depositors can redeem base assets at any time.
+  - Institutional-grade multi-asset thematic basket vault.
+  - Proportional Net Asset Value (NAV) share accounting: depositors receive shares proportional to basket USD NAV; withdrawers burn shares to receive an exact proportional slice of all held assets (completely eliminates 1:1 token drain exploits).
+  - Post-trade balance delta reconciliation: verifies input tokens decreased by amountIn and output tokens increased by >= minAmountOut.
 
-### Invariant Test Suite (Zero Dependencies)
+### Real EVM Smart Contract Invariant Verification Suite
 
-The test suite runs natively on standard Node.js libraries (node:assert, node:crypto) to guarantee reproducible auditability:
+The smart contracts are compiled with solc and executed on an in-memory EVM runtime (Ganache) to prove all 7 core on-chain security invariants against raw bytecode:
 
-- Test 1: Max Slippage Cap (100 bps) strictly enforced
-- Test 2: Max Single Trade Ceiling ($5,000) strictly enforced
-- Test 3: Temporal Cooldown (15 min) rate limits execution
-- Test 4: Token Allowlist prevents unauthorized assets
-- Test 5: Emergency Human Circuit Breaker fails closed unconditionally
-- Test 6: x402 Micropayment settlement proof verification
+- Invariant 1: Proportional Share Accounting & Non-Custodial Multi-Asset NAV (Drain Exploit Blocked)
+- Invariant 2: Emergency Human Circuit Breaker (Fail-Closed Rebalance Lock)
+- Invariant 3: Token Allowlist Strict Containment (Unallowlisted Asset Rejection)
+- Invariant 4: Single Trade Size Ceiling ($5,000 USD Limit Enforced via Oracle)
+- Invariant 5: Maximum Slippage Bounds (100 bps / 1.00% Cap Enforced)
+- Invariant 6: Genuine Token Rebalance & Balance Reconciliation (Router Execution Verified on EVM)
+- Invariant 7: Temporal Rate Limiting (15-Minute Cooldown Mutex)
 
 ### Adversarial & High-Concurrency Stress Test Suite
 
@@ -127,13 +133,13 @@ EquiMesh requires zero external runtime dependencies. Run all tests and inspect 
 git clone https://github.com/0xNexuz/equimesh.git
 cd equimesh
 
-# 2. Run the policy invariant audit suite
-node test/policy_invariants.test.js
+# 2. Run the EVM smart contract invariant verification suite
+npm run test:contracts
 
 # 3. Run the high-concurrency adversarial stress test suite
-node test/stress_test.js
+npm run test:stress
 
-# 4. Or execute the complete test suite via npm
+# 4. Or execute the complete test suite (Contracts + Stress Tests)
 npm test
 
 # 5. Start the local server
