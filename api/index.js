@@ -99,7 +99,7 @@ module.exports = (req, res) => {
     return;
   }
 
-  if (reqPath.endsWith("/api/status") || reqPath === "/status") {
+  if (reqPath.includes("status")) {
     const prices = {
       bNVDA: marketData.tokens.bNVDA.onChainSpot,
       bAAPL: marketData.tokens.bAAPL.onChainSpot,
@@ -116,21 +116,21 @@ module.exports = (req, res) => {
     return;
   }
 
-  if (reqPath.endsWith("/api/market") || reqPath === "/market") {
+  if (reqPath.includes("market")) {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
     res.end(JSON.stringify(marketData));
     return;
   }
 
-  if (reqPath.endsWith("/api/receipts") || reqPath === "/receipts") {
+  if (reqPath.includes("receipts")) {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
     res.end(JSON.stringify(executionReceipts));
     return;
   }
 
-  if (reqPath.endsWith("/api/policy/toggle-breaker") || reqPath === "/policy/toggle-breaker") {
+  if (reqPath.includes("toggle-breaker")) {
     agentState.circuitBreakerEngaged = !agentState.circuitBreakerEngaged;
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
