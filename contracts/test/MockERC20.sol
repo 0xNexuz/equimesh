@@ -29,7 +29,7 @@ contract MockERC20 {
         emit Transfer(address(0), to, amount);
     }
 
-    function transfer(address to, uint256 amount) external returns (bool) {
+    function transfer(address to, uint256 amount) public virtual returns (bool) {
         require(to != address(0), "Transfer to zero");
         require(balanceOf[msg.sender] >= amount, "Insufficient balance");
         balanceOf[msg.sender] -= amount;
@@ -44,7 +44,7 @@ contract MockERC20 {
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         require(to != address(0), "Transfer to zero");
         require(balanceOf[from] >= amount, "Insufficient balance");
         if (allowance[from][msg.sender] != type(uint256).max) {

@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { calculatePortfolioState } = require("./lib/portfolio");
-const { formulateRebalanceIntent, DEFAULT_POLICY } = require("./lib/rebalancer");
+const { formulateRebalanceIntent, DEFAULT_POLICY, ExecutionStatus } = require("./lib/rebalancer");
 const { X402Manager } = require("./lib/x402");
 
 const PORT = process.env.PORT || 3000;
@@ -230,6 +230,7 @@ const server = http.createServer((req, res) => {
         policyCheck: "PASSED (Deterministic EVM Invariants Verified)",
         gasUsedBNB: "0.00171 BNB ($0.99)",
         executionMode: isTestnetBroadcast ? "ON-CHAIN TESTNET" : "SIMULATED",
+        executionStatus: isTestnetBroadcast ? ExecutionStatus.CONFIRMED : ExecutionStatus.SIMULATED,
         statusBadge: isTestnetBroadcast ? "ON-CHAIN TESTNET VERIFIED" : "[SANDBOX PROOF]",
         bscScanUrl: isTestnetBroadcast ? `https://testnet.bscscan.com/tx/${params.testnetTxHash}` : null
       };

@@ -14,7 +14,7 @@ import "./ReferencePriceOracle.sol";
  * 3. Max Single Trade Size: Bounded to $5,000 USD per execution via oracle pricing.
  * 4. Max Slippage Cap: Maximum 100 bps (1.00%) slippage below fair value.
  * 5. Temporal Rate Limiting: 15-minute cooldown between rebalances.
- * 6. Authorization: Restricted to registered vault and authorized agent.
+ * 6. Authorization: Restricted to registered vault and authorized governance.
  */
 contract DeterministicPolicyGate {
     address public immutable owner;
@@ -57,14 +57,15 @@ contract DeterministicPolicyGate {
         _;
     }
 
-    modifier onlyAuthorized() {
-        if (msg.sender != owner && msg.sender != agentExecutor && msg.sender != authorizedVault) {
+    modifier onlyAuthorizedVault() {
+        if (msg.sender != authorizedVault && msg.sender != owner) {
             revert UnauthorizedCaller();
         }
         _;
     }
 
     constructor(address _agentExecutor, address _oracle) {
+        if (_oracle == address(0)) revert ZeroAddress();
         owner = msg.sender;
         agentExecutor = _agentExecutor;
         oracle = IReferencePriceOracle(_oracle);
@@ -113,18 +114,15 @@ contract DeterministicPolicyGate {
     }
 
     /**
-     * @notice Verifies all deterministic policy invariants and records execution timestamp.
-     * @param tokenIn Input asset to be sold.
-     * @param tokenOut Output asset to be acquired.
-     * @param amountIn Exact input token units.
-     * @param minAmountOut Minimum output token units acceptable.
+     * @notice Read-only view function verifying all deterministic policy invariants without state mutation.
+     * Takes exact token amounts and validates against oracle fair valuation.
      */
-    function verifyAndRecordTrade(
+    function verifyTrade(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 minAmountOut
-    ) external onlyAuthorized returns (bool) {
+    ) public view returns (bool) {
         // Invariant 1: Circuit Breaker Fail-Closed
         if (circuitBreakerActive) {
             revert CircuitBreakerEngaged();
@@ -142,8 +140,6 @@ contract DeterministicPolicyGate {
 
         // Invariant 4: Slippage Bounds (minAmountOut must be within maxSlippageBps of fair value)
         (uint256 priceOutUSD, uint8 decimalsOut) = oracle.getPriceUSD(tokenOut);
-        // Fair expected amountOut in tokenOut native decimals:
-        // expectedOut = (valueInUSD * 10^decimalsOut) / priceOutUSD
         uint256 expectedOut = (valueInUSD * (10 ** decimalsOut)) / priceOutUSD;
         uint256 requiredMinOut = (expectedOut * (10000 - maxSlippageBps)) / 10000;
         if (minAmountOut < requiredMinOut) {
@@ -155,15 +151,13 @@ contract DeterministicPolicyGate {
             revert CooldownNotElapsed(block.timestamp - lastExecutionTimestamp, cooldownSeconds);
         }
 
-        lastExecutionTimestamp = block.timestamp;
-        emit PolicyVerified(msg.sender, tokenIn, tokenOut, amountIn, minAmountOut, valueInUSD);
         return true;
     }
 
     /**
-     * @notice Legacy read-only check for UI pre-flight validation.
+     * @notice Read-only check for UI pre-flight validation using abstract USD amount and slippage basis points.
      */
-    function verifyTrade(
+    function verifyTradeUSD(
         address tokenIn,
         address tokenOut,
         uint256 amountInUSD,
@@ -177,6 +171,25 @@ contract DeterministicPolicyGate {
         if (lastExecutionTimestamp > 0 && block.timestamp < lastExecutionTimestamp + cooldownSeconds) {
             revert CooldownNotElapsed(block.timestamp - lastExecutionTimestamp, cooldownSeconds);
         }
+        return true;
+    }
+
+    /**
+     * @notice Verifies all deterministic policy invariants and records execution timestamp.
+     * Can ONLY be invoked by the authorized vault or owner during genuine rebalance settlement.
+     * Prevents external griefing or burn attacks on the cooldown period.
+     */
+    function verifyAndRecordTrade(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut
+    ) external onlyAuthorizedVault returns (bool) {
+        verifyTrade(tokenIn, tokenOut, amountIn, minAmountOut);
+
+        uint256 valueInUSD = oracle.getAssetValueUSD(tokenIn, amountIn);
+        lastExecutionTimestamp = block.timestamp;
+        emit PolicyVerified(msg.sender, tokenIn, tokenOut, amountIn, minAmountOut, valueInUSD);
         return true;
     }
 }

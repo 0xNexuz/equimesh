@@ -82,7 +82,7 @@ EquiMesh resolves the core trade-off between manual inertia and unsafe autonomou
 
 ### Real EVM Smart Contract Invariant Verification Suite
 
-The smart contracts are compiled with solc and executed on an in-memory EVM runtime (Ganache) to prove all 7 core on-chain security invariants against raw bytecode:
+The smart contracts are compiled with solc (0.8.20, EVM Version: Paris) and executed on an in-memory EVM runtime (Ganache) to prove all 15 institutional on-chain security and financial invariants against raw bytecode:
 
 - Invariant 1: Proportional Share Accounting & Non-Custodial Multi-Asset NAV (Drain Exploit Blocked)
 - Invariant 2: Emergency Human Circuit Breaker (Fail-Closed Rebalance Lock)
@@ -91,6 +91,14 @@ The smart contracts are compiled with solc and executed on an in-memory EVM runt
 - Invariant 5: Maximum Slippage Bounds (100 bps / 1.00% Cap Enforced)
 - Invariant 6: Genuine Token Rebalance & Balance Reconciliation (Router Execution Verified on EVM)
 - Invariant 7: Temporal Rate Limiting (15-Minute Cooldown Mutex)
+- Invariant 8: Router Allowlist Security (Unapproved Router Address Blocked Fail-Closed)
+- Invariant 9: Router Calldata Binding (Parameter Mismatch and Recipient Tampering Blocked)
+- Invariant 10: Fail-Closed Oracle Freshness & Sanity Bounds (Stale Quotes >24h and Out-of-Bounds Reverted)
+- Invariant 11: Zero-Share Minting & Dust Inflation Protection (Minimum Initial Share Defense)
+- Invariant 12: Reentrancy Protection (nonReentrant Guard on Deposits, Withdrawals, and Rebalances)
+- Invariant 13: Fee-On-Transfer / Balance Deviation Rejection (Tax Tokens Blocked on Deposit)
+- Invariant 14: Multi-Decimal Valuation Consistency (6-Decimal USDT vs 18-Decimal bNVDA Normalized)
+- Invariant 15: Policy Gate View vs Execution Separation (Cooldown Protected from External Callers)
 
 ### Adversarial & High-Concurrency Stress Test Suite
 

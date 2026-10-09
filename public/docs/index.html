@@ -392,17 +392,17 @@ const marketProof = await response.json(); // Validated before policy check</cod
             <tr>
               <td><code>EquiMeshVault.sol</code></td>
               <td>Non-custodial thematic basket vault</td>
-              <td>Proportional multi-asset NAV share accounting; post-trade balance delta reconciliation (<code>amountOut &gt;= minAmountOut</code>); non-custodial user withdrawals unlocked at all times.</td>
+              <td>Proportional multi-asset NAV share accounting; router allowlist registry (<code>approvedRouters</code>); tightly bound calldata parameter verification; SafeERC20 with allowance zeroing; ReentrancyGuard; fee-on-transfer rejection; minimum initial share inflation defense; post-trade balance delta reconciliation (<code>amountOut &gt;= minAmountOut</code>).</td>
             </tr>
             <tr>
               <td><code>DeterministicPolicyGate.sol</code></td>
               <td>On-chain policy gate for agent execution</td>
-              <td>Enforces 6 immutable invariants: (1) Emergency circuit breaker fail-closed, (2) Approved token allowlist, (3) $5,000 max single trade cap, (4) 100 bps max slippage cap, (5) 15-minute temporal cooldown mutex, (6) Role-based access control.</td>
+              <td>Enforces immutable invariants: (1) Emergency circuit breaker fail-closed, (2) Approved token allowlist, (3) $5,000 max single trade cap, (4) 100 bps max slippage cap, (5) 15-minute temporal cooldown mutex, (6) Strict vault-only state mutation preventing external cooldown burning.</td>
             </tr>
             <tr>
               <td><code>ReferencePriceOracle.sol</code></td>
               <td>18-decimal USD reference pricing oracle</td>
-              <td>Provides deterministic, manipulatable-resistant asset valuation in 18-decimal USD base units for accurate on-chain NAV and trade bounds.</td>
+              <td>Provides deterministic asset valuation in 18-decimal USD base units with fail-closed staleness checks (24-hour max staleness) and sanity price bounds ($0.0001 to $10,000,000).</td>
             </tr>
           </tbody>
         </table>
@@ -473,7 +473,7 @@ const marketProof = await response.json(); // Validated before policy check</cod
         <p>
           Following the <em>Build Harness</em> engineering standard, anyone can independently verify EquiMesh's core security invariants and real EVM smart contracts locally:
         </p>
-        <pre><code># 1. Compile Solidity bytecode & prove all 7 EVM Smart Contract Invariants:
+        <pre><code># 1. Compile Solidity bytecode & prove all 15 EVM Smart Contract Invariants:
 node test/contracts_invariants.test.js
 
 # Expected Output:
@@ -486,7 +486,15 @@ node test/contracts_invariants.test.js
 # [INVARIANT 5] Testing Max Slippage Cap (100 bps) -> PASS: Slippage cap enforced.
 # [INVARIANT 6] Testing Genuine Token Rebalance & Balance Reconciliation -> PASS: Verified on EVM.
 # [INVARIANT 7] Testing Temporal Rate Limiting (15-Minute Cooldown) -> PASS: Cooldown enforced.
-# ALL 7 EVM SMART CONTRACT INVARIANTS PROVEN (0 FAILURES)
+# [INVARIANT 8] Testing Router Allowlist Security -> PASS: Unapproved router address blocked.
+# [INVARIANT 9] Testing Router Calldata Binding -> PASS: Recipient / parameter tampering blocked.
+# [INVARIANT 10] Testing Oracle Freshness Staleness & Bounds -> PASS: Stale / corrupt prices fail closed.
+# [INVARIANT 11] Testing Zero-Share Minting & Dust Inflation -> PASS: Inflation attacks blocked.
+# [INVARIANT 12] Testing Reentrancy Guard -> PASS: Reentrancy calls strictly blocked.
+# [INVARIANT 13] Testing Fee-On-Transfer Token Rejection -> PASS: Tax tokens blocked.
+# [INVARIANT 14] Testing Multi-Decimal Asset NAV (6 vs 18 Decimals) -> PASS: Normalization verified.
+# [INVARIANT 15] Testing Policy Gate View vs Execution Separation -> PASS: State mutation restricted.
+# ALL 15 EVM SMART CONTRACT INVARIANTS PROVEN (0 FAILURES)
 
 # 2. Run the high-concurrency adversarial stress test suite:
 node test/stress_test.js
