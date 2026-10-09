@@ -172,8 +172,18 @@ const server = http.createServer((req, res) => {
         return;
       }
 
-      // Invariant Check 2: Max single trade ceiling ($5,000)
-      const tradeAmountUSD = Number(params.amountUSD) || 2500;
+      // Invariant Check 2: Max single trade ceiling ($5,000) and positive finite amount
+      const rawAmount = params.amountUSD !== undefined ? Number(params.amountUSD) : 2500;
+      if (typeof rawAmount !== "number" || isNaN(rawAmount) || !isFinite(rawAmount) || rawAmount <= 0) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: false,
+          error: "INVALID_AMOUNT: Trade size must be a positive finite number."
+        }));
+        return;
+      }
+
+      const tradeAmountUSD = rawAmount;
       if (tradeAmountUSD > agentState.policy.maxSingleTradeUSD) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({
@@ -185,6 +195,25 @@ const server = http.createServer((req, res) => {
 
       const inputToken = params.inputToken || "bNVDA";
       const outputToken = params.outputToken || "Ondo-USDY";
+
+      if (inputToken === outputToken) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: false,
+          error: "POLICY_VIOLATION: Input and output assets cannot be identical."
+        }));
+        return;
+      }
+
+      if (!agentState.policy.allowedTokens.includes(inputToken) || !agentState.policy.allowedTokens.includes(outputToken)) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: false,
+          error: "POLICY_VIOLATION: Unallowlisted token specified."
+        }));
+        return;
+      }
+
       const priceIn = marketData.tokens[inputToken] ? marketData.tokens[inputToken].onChainSpot : 122.8;
       const priceOut = marketData.tokens[outputToken] ? marketData.tokens[outputToken].onChainSpot : 1.052;
 

@@ -76,6 +76,7 @@ contract EquiMeshVault {
     error InvalidCalldata();
     error ReentrantCall();
     error SafeTransferFailed();
+    error IdenticalTokens();
     error ZeroAddress();
 
     modifier onlyOwner() {
@@ -98,7 +99,7 @@ contract EquiMeshVault {
     }
 
     constructor(address _policyGate, address _oracle, address _agentExecutor) {
-        if (_policyGate == address(0) || _oracle == address(0)) revert ZeroAddress();
+        if (_policyGate == address(0) || _oracle == address(0) || _agentExecutor == address(0)) revert ZeroAddress();
         owner = msg.sender;
         policyGate = DeterministicPolicyGate(_policyGate);
         oracle = IReferencePriceOracle(_oracle);
@@ -230,6 +231,7 @@ contract EquiMeshVault {
         bytes calldata routerCallData
     ) external onlyAgentOrOwner nonReentrant returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
+        if (tokenIn == tokenOut) revert IdenticalTokens();
         if (!approvedRouters[router]) revert UnapprovedRouter(router);
 
         // 1. Calldata verification: ensure tightly bound to executeSwap with recipient = this

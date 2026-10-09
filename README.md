@@ -82,7 +82,7 @@ EquiMesh resolves the core trade-off between manual inertia and unsafe autonomou
 
 ### Real EVM Smart Contract Invariant Verification Suite
 
-The smart contracts are compiled with solc (0.8.20, EVM Version: Paris) and executed on an in-memory EVM runtime (Ganache) to prove all 15 institutional on-chain security and financial invariants against raw bytecode:
+The smart contracts are compiled with solc (0.8.20, EVM Version: Paris) and executed on an in-memory EVM runtime (Ganache) to prove all 17 institutional on-chain security and financial invariants against raw bytecode:
 
 - Invariant 1: Proportional Share Accounting & Non-Custodial Multi-Asset NAV (Drain Exploit Blocked)
 - Invariant 2: Emergency Human Circuit Breaker (Fail-Closed Rebalance Lock)
@@ -99,6 +99,8 @@ The smart contracts are compiled with solc (0.8.20, EVM Version: Paris) and exec
 - Invariant 13: Fee-On-Transfer / Balance Deviation Rejection (Tax Tokens Blocked on Deposit)
 - Invariant 14: Multi-Decimal Valuation Consistency (6-Decimal USDT vs 18-Decimal bNVDA Normalized)
 - Invariant 15: Policy Gate View vs Execution Separation (Cooldown Protected from External Callers)
+- Invariant 16: Identical Token Self-Swap Rejection (tokenIn == tokenOut Blocked Fail-Closed)
+- Invariant 17: Constructor Zero-Address Input Sanitization (Critical Constructor Addresses Validated)
 
 ### Adversarial & High-Concurrency Stress Test Suite
 

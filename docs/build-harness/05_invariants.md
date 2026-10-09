@@ -76,3 +76,13 @@ These 15 institutional on-chain and financial invariants are mathematically enfo
 - **Rule:** Read-only queries (`verifyTrade`, `verifyTradeUSD`) can be dry-run by any agent, monitoring tool, or user without advancing execution cooldown. Cooldown timestamp mutation is strictly restricted to the authorized vault during genuine execution.
 - **Enforcement:** `onlyAuthorizedVault` modifier on `DeterministicPolicyGate.verifyAndRecordTrade`; external unauthorized calls revert with `UnauthorizedCaller()`.
 - **Status:** **PROVEN ON EVM** (`test/contracts_invariants.test.js`, Invariant 15).
+
+### Invariant 16 (INV-16): Identical Token Self-Swap Rejection
+- **Rule:** Rebalance operations and policy gate verifications strictly reject degenerate trades where input token equals output token (`tokenIn == tokenOut`).
+- **Enforcement:** Enforced in `DeterministicPolicyGate.verifyTrade`, `verifyTradeUSD`, and `EquiMeshVault.executeRebalance`; reverts fail-closed with `IdenticalTokens()`.
+- **Status:** **PROVEN ON EVM** (`test/contracts_invariants.test.js`, Invariant 16).
+
+### Invariant 17 (INV-17): Constructor Zero-Address Input Sanitization
+- **Rule:** All core contract constructors enforce non-zero address parameters for critical actors (`policyGate`, `oracle`, `agentExecutor`).
+- **Enforcement:** Enforced in `DeterministicPolicyGate` and `EquiMeshVault` constructors; reverts with `ZeroAddress()`.
+- **Status:** **PROVEN ON EVM** (`test/contracts_invariants.test.js`, Invariant 17).

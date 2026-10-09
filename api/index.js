@@ -155,7 +155,18 @@ module.exports = (req, res) => {
         return;
       }
 
-      const tradeAmountUSD = Number(params.amountUSD) || 2500;
+      const rawAmount = params.amountUSD !== undefined ? Number(params.amountUSD) : 2500;
+      if (typeof rawAmount !== "number" || isNaN(rawAmount) || !isFinite(rawAmount) || rawAmount <= 0) {
+        res.setHeader("Content-Type", "application/json");
+        res.statusCode = 400;
+        res.end(JSON.stringify({
+          success: false,
+          error: "INVALID_AMOUNT: Trade size must be a positive finite number."
+        }));
+        return;
+      }
+
+      const tradeAmountUSD = rawAmount;
       if (tradeAmountUSD > agentState.policy.maxSingleTradeUSD) {
         res.setHeader("Content-Type", "application/json");
         res.statusCode = 400;
@@ -168,6 +179,27 @@ module.exports = (req, res) => {
 
       const inputToken = params.inputToken || "bNVDA";
       const outputToken = params.outputToken || "Ondo-USDY";
+
+      if (inputToken === outputToken) {
+        res.setHeader("Content-Type", "application/json");
+        res.statusCode = 400;
+        res.end(JSON.stringify({
+          success: false,
+          error: "POLICY_VIOLATION: Input and output assets cannot be identical."
+        }));
+        return;
+      }
+
+      if (!agentState.policy.allowedTokens.includes(inputToken) || !agentState.policy.allowedTokens.includes(outputToken)) {
+        res.setHeader("Content-Type", "application/json");
+        res.statusCode = 400;
+        res.end(JSON.stringify({
+          success: false,
+          error: "POLICY_VIOLATION: Unallowlisted token specified."
+        }));
+        return;
+      }
+
       const priceIn = marketData.tokens[inputToken] ? marketData.tokens[inputToken].onChainSpot : 122.8;
       const priceOut = marketData.tokens[outputToken] ? marketData.tokens[outputToken].onChainSpot : 1.052;
 

@@ -38,6 +38,8 @@ npm run test:policy     # Fast standalone policy invariant verification (6 invar
 | `INV-13` | Fee-On-Transfer Protection | Token deducts 5% fee on transfer | Revert: `"Fee-on-transfer tokens unsupported"` | **PASS** |
 | `INV-14` | Multi-Decimal Consistency | 6-decimal USDC vs 18-decimal bNVDA | Proportional USD NAV strictly preserved | **PASS** |
 | `INV-15` | Policy Separation of Concerns | External caller attempts `verifyAndRecordTrade` | Revert: `UnauthorizedCaller` | **PASS** |
+| `INV-16` | Identical Token Rejection | Trade proposals where `tokenIn == tokenOut` | Revert: `IdenticalTokens` | **PASS** |
+| `INV-17` | Constructor Zero-Address Sanitization | Constructors deployed with zero addresses | Revert: `ZeroAddress` | **PASS** |
 
 ### Part B: Adversarial & High-Concurrency Suite (`test/stress_test.js`)
 
@@ -51,4 +53,4 @@ npm run test:policy     # Fast standalone policy invariant verification (6 invar
 | `STRESS-06` | Kill Switch In-Flight Load | 2,000 concurrent calls under breaker | 2,000 / 2,000 dropped fail-closed | **PASS** |
 | `STRESS-07` | Dual Network Isolation | 500 interleaved transactions | 100% Mainnet / Testnet state isolation | **PASS** |
 
-**Total Invariants & Stress Suites Passed:** 22 / 22 (100% Pass Rate, 0 Failures).
+**Total Invariants & Stress Suites Passed:** 24 / 24 (100% Pass Rate, 0 Failures).

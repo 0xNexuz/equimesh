@@ -50,6 +50,7 @@ contract DeterministicPolicyGate {
     error SlippageExceedsCap(uint256 minAmountOut, uint256 requiredMinOut);
     error CooldownNotElapsed(uint256 elapsed, uint256 required);
     error TokenNotAllowlisted(address token);
+    error IdenticalTokens();
     error ZeroAddress();
 
     modifier onlyOwner() {
@@ -65,7 +66,7 @@ contract DeterministicPolicyGate {
     }
 
     constructor(address _agentExecutor, address _oracle) {
-        if (_oracle == address(0)) revert ZeroAddress();
+        if (_agentExecutor == address(0) || _oracle == address(0)) revert ZeroAddress();
         owner = msg.sender;
         agentExecutor = _agentExecutor;
         oracle = IReferencePriceOracle(_oracle);
@@ -128,7 +129,8 @@ contract DeterministicPolicyGate {
             revert CircuitBreakerEngaged();
         }
 
-        // Invariant 2: Allowlisted tokens only
+        // Invariant 2: Allowlisted tokens only (and distinct assets)
+        if (tokenIn == tokenOut) revert IdenticalTokens();
         if (!allowlistedTokens[tokenIn]) revert TokenNotAllowlisted(tokenIn);
         if (!allowlistedTokens[tokenOut]) revert TokenNotAllowlisted(tokenOut);
 
@@ -164,6 +166,7 @@ contract DeterministicPolicyGate {
         uint256 slippageBps
     ) external view returns (bool) {
         if (circuitBreakerActive) revert CircuitBreakerEngaged();
+        if (tokenIn == tokenOut) revert IdenticalTokens();
         if (!allowlistedTokens[tokenIn]) revert TokenNotAllowlisted(tokenIn);
         if (!allowlistedTokens[tokenOut]) revert TokenNotAllowlisted(tokenOut);
         if (amountInUSD > maxSingleTradeUSD) revert TradeExceedsMaximumSize(amountInUSD, maxSingleTradeUSD);

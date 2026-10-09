@@ -131,7 +131,7 @@ async function runEVMInvariantTests() {
   console.log("✓ Core contracts deployed and initialized.\n");
 
   let testsPassed = 0;
-  const totalTests = 15;
+  const totalTests = 17;
 
   // -------------------------------------------------------------
   // TEST 1: Proportional Share Accounting & Drain Prevention
@@ -585,6 +585,72 @@ async function runEVMInvariantTests() {
     }, "UnauthorizedCaller");
 
     console.log("  PASS: Policy gate state commitment strictly restricted to authorized vault.");
+    testsPassed++;
+  } catch (e) {
+    console.error("  FAIL:", e.message);
+  }
+
+  // -------------------------------------------------------------
+  // TEST 16: Identical Token Self-Swap Rejection (tokenIn == tokenOut)
+  // -------------------------------------------------------------
+  try {
+    console.log("[INVARIANT 16] Testing Identical Token Rejection (Self-Swap Blocked)...");
+
+    // PolicyGate verifyTrade must revert with IdenticalTokens
+    await assertReverts(async () => {
+      await gate.verifyTrade(nvdaAddr, nvdaAddr, ethers.parseEther("1"), ethers.parseEther("1"));
+    }, "IdenticalTokens");
+
+    // PolicyGate verifyTradeUSD must revert with IdenticalTokens
+    await assertReverts(async () => {
+      await gate.verifyTradeUSD(nvdaAddr, nvdaAddr, ethers.parseEther("100"), 10);
+    }, "IdenticalTokens");
+
+    // Vault executeRebalance must revert with IdenticalTokens
+    const iface = new ethers.Interface([
+      "function executeSwap(address,address,uint256,uint256,address) returns (uint256)"
+    ]);
+    const selfSwapData = iface.encodeFunctionData("executeSwap", [
+      nvdaAddr, nvdaAddr, ethers.parseEther("1"), ethers.parseEther("1"), vaultAddr
+    ]);
+    await assertReverts(async () => {
+      await vault.connect(agent).executeRebalance.staticCall(
+        nvdaAddr, nvdaAddr, ethers.parseEther("1"), ethers.parseEther("1"), routerAddr, selfSwapData
+      );
+    }, "IdenticalTokens");
+
+    console.log("  PASS: Degenerate self-swap attempts strictly rejected on-chain.");
+    testsPassed++;
+  } catch (e) {
+    console.error("  FAIL:", e.message);
+  }
+
+  // -------------------------------------------------------------
+  // TEST 17: Constructor Zero-Address Sanitization
+  // -------------------------------------------------------------
+  try {
+    console.log("[INVARIANT 17] Testing Constructor Zero-Address Input Sanitization...");
+
+    // DeterministicPolicyGate must reject zero agentExecutor or zero oracle
+    await assertReverts(async () => {
+      await GateFactory.deploy(ethers.ZeroAddress, oracleAddr);
+    }, "ZeroAddress");
+    await assertReverts(async () => {
+      await GateFactory.deploy(agentAddr, ethers.ZeroAddress);
+    }, "ZeroAddress");
+
+    // EquiMeshVault must reject zero policyGate, zero oracle, or zero agentExecutor
+    await assertReverts(async () => {
+      await VaultFactory.deploy(ethers.ZeroAddress, oracleAddr, agentAddr);
+    }, "ZeroAddress");
+    await assertReverts(async () => {
+      await VaultFactory.deploy(gateAddr, ethers.ZeroAddress, agentAddr);
+    }, "ZeroAddress");
+    await assertReverts(async () => {
+      await VaultFactory.deploy(gateAddr, oracleAddr, ethers.ZeroAddress);
+    }, "ZeroAddress");
+
+    console.log("  PASS: All critical contract constructors enforce zero-address validation.");
     testsPassed++;
   } catch (e) {
     console.error("  FAIL:", e.message);
